@@ -1,0 +1,74 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc 
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<!-- <bean id="HandlerMapping" class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/> 
+		<bean name="/ripController" class="ripPack.RipController" /> -->
+
+	<!-- package -ის მისამართს ვუთითებთ სადაც გვაქვს კონტროლერები რომლებიც გვინდა 
+		ჩავტვირთოთ მეხსიერებაში -->
+	<context:component-scan base-package="controllers" />
+
+	<!-- აქ უდნა მივბუთითოთ Exception handler კლასიების ადგილიც რადგან შევძლოთ 
+		ControllerAdvice-ის გამოყენება(ბევრი Controller-ებისთვსი exception-ების საერთო 
+		დამუშავებისათვის) -->
+	<context:component-scan base-package="services" />
+
+	<!-- საჭიროა იმისათვის რომ @PathVariable Map<String,String>vars url იდან 
+		მოსული პარამეტრებ Mao-ში ჩავყარეთ -->
+	<mvc:annotation-driven />
+
+	<!-- ამ კოდის ფრაგმენტით ვუთითებთ შესასვლელს კლასში რომელიც დაამუშავებს 
+		request-ებს მანამდე დაამუშავებენ კონტროლერები იმ შემთხვევაში თუ ამ კლასის 
+		დამამუშავებელი მეთოდი დააბრუნებს false-ს დამუშავება აღარ გაგრძელდება თუ true 
+		მაშინ ჩვეულებრივ გავაგრძელებთ request-ის დამუშავებას -->
+	<mvc:interceptors>
+
+		<mvc:interceptor>
+			<!-- <mvc:mapping path="/rip/rip3"/> -->
+			<mvc:mapping path="/rip/rip3" /><!-- ეს მიდგომა გვეხმარება 
+				იმაში რომ კონკრეტული url-ებეისთვის კონკრეტული interceptor-ები გავწეროთ -->
+			<bean class="services.RipPreHandleInterceptoor2" />
+		</mvc:interceptor>
+		<bean class="services.RipPreHandleInterceptoor" />
+
+	</mvc:interceptors>
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+	</bean>
+
+	<bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basename" value="/WEB-INF/studentmessages" />
+		<property name="cacheSeconds" value="1" /><!-- es aris imisatvis 
+			rom validaciis mesigebis failshi shetanili cvlilebis shemtxvevashi ar dagvchirdes 
+			serveris gadatvirtva .agsanishnavia rom misi gamoyeneba sasurvelia mxolod 
+			testing processhi -->
+	</bean>
+
+	<!-- static ფაილების mapping-ისთვის გამოყენებული მექანიზმი.ანუ mapping-ში 
+	გაწერილი url შეიცვლება location-ში გაწერილით და შესაბამისად ფაილების განლაგება 
+	რომ შევცვლაოთ ადვილი იქნება mapping-ების შეცვლა რადგან მართვის მექანიზმი 
+		ერ ადგილასაა მოქცეული -->
+	<mvc:resources mapping="resources/**" location="/allresource/resources/" />
+
+	<mvc:resources mapping="vendors/**" location="/allresource/vendors/" />
+
+	<mvc:resources mapping="img/**" location="/allresource/img/" />
+
+
+</beans>
